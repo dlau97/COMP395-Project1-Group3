@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
 public class QueueSimulation : MonoBehaviour
 {
@@ -19,22 +20,24 @@ public class QueueSimulation : MonoBehaviour
             for(int i = 1; i<lines.Length; i++){
 
                 //Split current line of data in string array
-                string [] line = lines[i].Split(' '); //<---------Error is here!!!!!!!!!!!!!!!!!!!
-                //Debug.Log(line);
+                string [] line = lines[i].Split('\t'); //<---------Error is here!!!!!!!!!!!!!!!!!!!
+                //double test = Convert.ToDouble(line[1]);
+                //Debug.Log("|" + (test + 1) + "|");
+
 
                 //For testing
-                Debug.Log(lines[i]);
+                //Debug.Log(lines[i]);
 
                 // //Extract individual data from each line and assign to respective variables
-                // int id = int.Parse(line[0]);
-                // float arrivalTime = float.Parse(line[1]);
-                // float serviceTime = float.Parse(line[2]);
+                int id = int.Parse(line[0]);
+                float arrivalTime = float.Parse(line[1]);
+                float serviceTime = float.Parse(line[2]);
 
-                // //Create new customer object and assign to custome array
-                // customersArray[i-1] = new Customer(id, arrivalTime, serviceTime);
+                //Create new customer object and assign to custome array
+                customersArray[i - 1] = new Customer(id, arrivalTime, serviceTime);
 
-                // //Print customer object
-                // Debug.Log(customersArray[i-1].ToString());
+                //Print customer object
+                Debug.Log(customersArray[i - 1].ToString());
             }
 
 
