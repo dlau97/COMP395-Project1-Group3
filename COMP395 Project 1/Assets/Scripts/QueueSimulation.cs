@@ -1,12 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.IO;
 using System;
 
 public class QueueSimulation : MonoBehaviour
 {
-    public string path = "Assets/Import/GeneratedData.txt";
+    public float timeMultiplier = 60;
+    public Slider timeSlider;
+    public Text numOfCustomersText;
+    public Text serviceTimeText;
+    public Text interarrivalText;
+    public Text timeText;
+
+
+    private float GLOBAL_X = 0f;
+    private float time = 0f;
+    private string path = "Assets/Import/GeneratedData.txt";
+    private Queue<Customer> customerQueue = new Queue<Customer>();
+    private int numOfCustomers;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,7 +53,8 @@ public class QueueSimulation : MonoBehaviour
                 //Print customer object
                 Debug.Log(customersArray[i - 1].ToString());
             }
-
+            StartCoroutine(Interval(customersArray, 0));
+            StartCoroutine(ServiceCoroutine());
 
         }
         catch(IOException E){
@@ -49,10 +64,50 @@ public class QueueSimulation : MonoBehaviour
 
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnSlider_Changed()
     {
-        
+        timeMultiplier = timeSlider.value;
     }
 
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        Time.timeScale = timeMultiplier/60;
+        time += Time.deltaTime;
+        timeText.text = "Time (Minutes): " + time.ToString();
+    }
+
+    IEnumerator Interval(Customer[] customerArray, int index)
+    {
+        yield return new WaitForSeconds(customerArray[index].getArrivalTime());
+        GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        obj.transform.position = new Vector3(GLOBAL_X, 0f, 0f);
+        obj.name = customerArray[index].getID().ToString();
+        obj.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.HSVToRGB((customerArray[index].getServiceTime()/10f) % 1f, 1f, 1f));
+        customerQueue.Enqueue(customerArray[index]);
+        interarrivalText.text = "Last Arrival Time: " + customerArray[index].getArrivalTime().ToString();
+        GLOBAL_X++;
+        StartCoroutine(Interval(customerArray, index+1));
+    }
+
+    IEnumerator ServiceCoroutine()
+    {
+        while (true)
+        {
+            if (customerQueue.Count > 0)
+            {
+                Customer c = customerQueue.Dequeue();
+                yield return new WaitForSeconds(c.getServiceTime());
+                Destroy(GameObject.Find(c.getID().ToString()));
+                GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
+                camera.transform.position = new Vector3(camera.transform.position.x + 1, camera.transform.position.y, camera.transform.position.z);
+                numOfCustomers++;
+                numOfCustomersText.text = "Customers Served: " + numOfCustomers;
+                serviceTimeText.text = "Last Service Time: " + c.getServiceTime().ToString();
+            } else
+            {
+                yield return new WaitForFixedUpdate();
+            }
+        }
+    }
 }

@@ -14,7 +14,7 @@ public class Customer
         serviceTime = sTime;
     }
 
-    public float getID(){
+    public int getID(){
         return ID;
     }
     public float getArrivalTime(){
