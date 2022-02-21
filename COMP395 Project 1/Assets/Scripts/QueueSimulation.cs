@@ -17,24 +17,24 @@ public class QueueSimulation : MonoBehaviour
 
     private float GLOBAL_X = 0f;
     private float time = 0f;
-    private string path = "Assets/Import/GeneratedData.txt";
+    private string path = "Assets/Resources/GeneratedData.txt";
     private Queue<Customer> customerQueue = new Queue<Customer>();
     private int numOfCustomers;
 
     // Start is called before the first frame update
     void Start()
     {
-        string [] lines;
         Customer [] customersArray = new Customer[500];
         try{
-            //Read All lines of text file
-            lines = System.IO.File.ReadAllLines(path);
+            TextAsset test = Resources.Load<TextAsset>("GeneratedData");
+            string[] lines = test.text.Split('\n');
 
-            //Repeat for 500 customers - starting at index 1 because line 0 is the heading line
-            for(int i = 1; i<lines.Length; i++){
+            ////Repeat for 500 customers - starting at index 1 because line 0 is the heading line
+            for (int i = 1; i < lines.Length - 1; i++)
+            {
 
                 //Split current line of data in string array
-                string [] line = lines[i].Split('\t'); //<---------Error is here!!!!!!!!!!!!!!!!!!!
+                string[] line = lines[i].Split('\t'); //<---------Error is here!!!!!!!!!!!!!!!!!!!
                 //double test = Convert.ToDouble(line[1]);
                 //Debug.Log("|" + (test + 1) + "|");
 
@@ -52,7 +52,11 @@ public class QueueSimulation : MonoBehaviour
 
                 //Print customer object
                 Debug.Log(customersArray[i - 1].ToString());
+
+
+
             }
+
             StartCoroutine(Interval(customersArray, 0));
             StartCoroutine(ServiceCoroutine());
 
